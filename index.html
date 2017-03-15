@@ -1,0 +1,43 @@
+<html>
+<head>
+	<style type="text/css">
+		.nick{
+			width: 200px;
+			float: left;
+		}
+
+		.message{
+			float:left;
+		}
+	</style>
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+<div>
+<form id="megaForma">
+	<input type="text" id="nick" name="nick"/>
+	<input type="text" id="message" name="message"/>
+	<input id="send" type="submit"/>
+</form>
+</div>
+<div id="chat"><table id="myTable"></table></div>
+<script type="text/javascript">
+   var chat = new WebSocket('ws://192.168.1.23:9000');
+
+   chat.onmessage = function(data){
+   	var message = JSON.parse(data.data);
+   	$('#myTable').append('<tr><td>'+message.nick+':</td><td>'+message.message+'</td></tr>');
+   }
+
+   $('#megaForma').submit(function(event){
+   		$.post( "http://192.168.1.23:9001", { nick: $('#nick').val(), message: $('#message').val() } );
+   		event.preventDefault();
+   })
+
+</script>
+</body>
+
+</html>
