@@ -25,7 +25,7 @@
 </div>
 <div id="chat"><table id="myTable"></table></div>
 <script type="text/javascript">
-   var chat = new WebSocket('ws://192.168.1.23:9000');
+   var chat = new WebSocket('ws://192.168.1.23:9000');//ghbdtn
 
    chat.onmessage = function(data){
    	var message = JSON.parse(data.data);
