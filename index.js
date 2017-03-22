@@ -3,16 +3,13 @@ var WebSocketServer = require('ws').Server,
 	http = require('http'),
 	qs = require('querystring'),
 	peers = [],
-    index;
+    index = 0;
 
 server = http.createServer( function(req, res) {
-	console.log(req.method);
     if (req.method == 'POST') {
-        console.log("POST");
         var body = '';
         req.on('data', function (data) {
             body += data;
-            console.log("Partial body: " + body);
         });
         req.on('end', function () {
         	var post = qs.parse(body);
@@ -34,7 +31,7 @@ var closeCo = function (index) {
     }
 } 
 
-server.listen(9001, '192.168.1.23');
+server.listen(9001, 'localhost');
 
 wss.on('connection', function (ws) { 
     index += 1;
@@ -43,7 +40,9 @@ wss.on('connection', function (ws) {
 });
 
 function broadcast(data){
+    console.log(data);
 	peers.forEach (function (ws) {
+        console.log(ws);
 		ws.send (JSON.stringify(data), function(error){console.log(error)});
 	});
 }
