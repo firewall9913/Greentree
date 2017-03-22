@@ -26,7 +26,7 @@ server = http.createServer( function(req, res) {
 
 var closeCo = function (index) {
     return function () {
-        console.log('Минус один дракон ');
+        console.log('Минус один дракон');
         delete peers[index];
     }
 } 
