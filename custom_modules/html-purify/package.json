@@ -1,0 +1,133 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "html-purify",
+        "scope": null,
+        "escapedName": "html-purify",
+        "name": "html-purify",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "c:\\pos"
+    ]
+  ],
+  "_from": "html-purify@latest",
+  "_id": "html-purify@1.1.0",
+  "_inCache": true,
+  "_location": "/html-purify",
+  "_nodeVersion": "0.12.10",
+  "_npmOperationalInternal": {
+    "host": "packages-5-east.internal.npmjs.com",
+    "tmp": "tmp/html-purify-1.1.0.tgz_1455830288264_0.9448907685000449"
+  },
+  "_npmUser": {
+    "name": "maditya",
+    "email": "a.mahendrakar@yahoo.com"
+  },
+  "_npmVersion": "2.14.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "html-purify",
+    "scope": null,
+    "escapedName": "html-purify",
+    "name": "html-purify",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/html-purify/-/html-purify-1.1.0.tgz",
+  "_shasum": "35a83fa260559685ba793c0a31f3561978ae8627",
+  "_shrinkwrap": null,
+  "_spec": "html-purify",
+  "_where": "c:\\pos",
+  "author": {
+    "name": "Aditya Mahendrakar"
+  },
+  "bugs": {
+    "url": "https://github.com/yahoo/html-purify/issues"
+  },
+  "contributors": [
+    {
+      "name": "Aditya Mahendrakar",
+      "email": "maditya@yahoo-inc.com"
+    },
+    {
+      "name": "Nera Liu",
+      "email": "neraliu@yahoo-inc.com"
+    },
+    {
+      "name": "Adonis Fung",
+      "email": "adon@yahoo-inc.com"
+    },
+    {
+      "name": "Albert Yu",
+      "email": "albertyu@yahoo-inc.com"
+    }
+  ],
+  "dependencies": {
+    "context-parser": "^2.0.1",
+    "css-js": "1.0.3",
+    "xss-filters": "^1.2.6"
+  },
+  "description": "HTML5 Purifier",
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^3.8.0",
+    "grunt-cli": "0.1.*",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-jshint": "^0.11.0",
+    "grunt-contrib-uglify": "^0.9.1",
+    "grunt-mocha-istanbul": "^2.3.0"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "dist": {
+    "shasum": "35a83fa260559685ba793c0a31f3561978ae8627",
+    "tarball": "https://registry.npmjs.org/html-purify/-/html-purify-1.1.0.tgz"
+  },
+  "gitHead": "404ccb52fe6ae2a6aa558c6ef7849a7437e3371d",
+  "homepage": "https://github.com/yahoo/html-purify",
+  "keywords": [
+    "xss",
+    "html5"
+  ],
+  "license": "BSD",
+  "licenses": [
+    {
+      "type": "BSD",
+      "url": "https://github.com/yahoo/html-purify/blob/master/LICENSE"
+    }
+  ],
+  "main": "./src/html-purify.js",
+  "maintainers": [
+    {
+      "name": "maditya",
+      "email": "a.mahendrakar@yahoo.com"
+    },
+    {
+      "name": "neraliu",
+      "email": "neraliu@gmail.com"
+    }
+  ],
+  "name": "html-purify",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yahoo/html-purify.git"
+  },
+  "scripts": {
+    "build": "npm install; grunt",
+    "clean": "grunt clean",
+    "hint": "grunt jshint",
+    "test": "grunt test"
+  },
+  "version": "1.1.0"
+}
