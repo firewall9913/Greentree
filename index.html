@@ -32,8 +32,9 @@
    	$('#myTable').append('<tr><td>'+message.nick+':</td><td>'+message.message+'</td></tr>');
    }
 
+   
    $('#megaForma').submit(function(event){
-   		$.post( "http://localhost:9001", { nick: $('#nick').val(), message: $('#message').val() } );
+   		$.post( "http://192.168.1.23:9001", { nick: $('#nick').val(), message: $('#message').val() } );
    		event.preventDefault();
    })
 
