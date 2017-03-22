@@ -3,7 +3,7 @@ var WebSocketServer = require('ws').Server,
 	http = require('http'),
 	qs = require('querystring'),
 	peers = [],
-    index,
+    index = 0,
     Purifier = require('./custom_modules/html-purify'),
     purifier = new Purifier();
 
