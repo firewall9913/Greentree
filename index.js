@@ -36,7 +36,7 @@ var closeCo = function (index) {
     }
 } 
 
-server.listen(9001, '192.168.1.23');
+server.listen(9001, 'localhost');
 
 wss.on('connection', function (ws) { 
     index += 1;
