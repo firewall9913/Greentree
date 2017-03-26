@@ -1,0 +1,59 @@
+#!/usr/bin/env node
+/*
+Copyright (c) 2015, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+var fs = require('fs');
+var html = fs.readFileSync('tests/samples/tests/1m.html', "utf8");  
+
+var parsers = [
+    ['Context Parser (Fast)', '../src/context-parser', 'FastParser', 'contextualize'],
+];
+
+var allParsers = parsers.concat([
+    ['Context Parser (Full)', '../src/context-parser', 'Parser', 'contextualize'],
+    ['Parse5', 'parse5', 'Parser', 'parse'],
+    ['Gumbo', 'gumbo-parser'],
+    ['High5', 'high5', '', 'end'],
+    ['HtmlParser2', 'htmlparser2', 'Parser', 'end'],
+]);
+
+console.log("Usage: benchmark [all]");
+
+if ( process.argv.length > 2 ) {
+    parsers = allParsers;
+}
+
+parsers.forEach(function(parser) {
+
+    var start, end;
+    var parsername = parser[0];
+    var classname = parser[1];
+    var name = parser[2];
+    var method = parser[3];
+
+    try {
+        if ( name || method ) {
+            var Parser = name ? require(classname)[name] : require(classname);
+            start = +new Date();
+            for(var i=0; i<10; i++) {
+                var parser = new Parser();
+                parser[method](html);
+            }
+            end = +new Date();
+        } else {
+            start = +new Date();
+            var method = require(classname);
+            for(var i=0; i<10; i++) {
+                method(html);
+            }
+            end = +new Date();
+        }
+        console.log(parsername + " runs at a speed of " + 10/((end - start)/1000) + " MB per seconds [" + (end-start)/10/1000 + " second per MB].")
+    } catch (e) {
+        console.log('Error running ' + parsername + '. Try running npm install ' + classname + '? [' + e + ']');
+
+    }
+});

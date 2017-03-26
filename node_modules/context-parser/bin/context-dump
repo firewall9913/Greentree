@@ -1,0 +1,79 @@
+#!/usr/bin/env node
+/*
+Copyright (c) 2015, Yahoo! Inc. All rights reserved.
+Copyrights licensed under the New BSD License.
+See the accompanying LICENSE file for terms.
+*/
+
+var Debug = require("debug"),
+    progname = 'HTML-State';
+
+Debug.enable(progname);
+
+(function() {
+    var Parser = require("../src/context-parser").Parser,
+        debug = Debug(progname),
+        fs = require('fs'),
+        file, 
+        enableInputPreProcessing = false, enableCanonicalization = false, enableIEConditionalComments = false, enableStateTracking = true,
+        noofargs = 0;
+
+    process.argv.forEach(function(val, index) {
+        ++noofargs;
+        if (index === 2) {
+            file = val;
+        } else if (index === 3) {
+            enableInputPreProcessing = val === "1"? true:false;
+        } else if (index === 4) {
+            enableCanonicalization = val === "1"? true:false;
+        }
+    });
+
+    var config = {
+        enableInputPreProcessing: enableInputPreProcessing,
+        enableCanonicalization: enableCanonicalization,
+        enableIEConditionalComments: enableIEConditionalComments,
+        enableStateTracking: enableStateTracking 
+    }, 
+        parser = new Parser(config);
+
+    Parser.prototype.printCharWithState = function() {
+        var len = this.states.length;
+        debug('{ statesSize: '+len+' }');
+        for(var i=0;i<len;i++) {
+            var c = this.buffer[i];
+            var s = this.states[i];
+            var t = this.symbol[i];
+
+            if (i === 0) {
+                debug('{ ch: 0, state: '+s+', symbol: 0 }');
+            } else if ( t === 0 ) {
+                /* space or eol */
+                debug('{ ch:   [0x'+c.charCodeAt(0).toString(16)+'], state: '+s+', symbol: '+t+' }');
+            } else {
+                if (c !== undefined) {
+                    debug('{ ch: '+c+' [0x'+c.charCodeAt(0).toString(16)+'], state: '+s+', symbol: '+t+' }');
+                } else {
+                    debug('{ undefined - char in html without state }');
+                }
+            }
+        }
+        return 0;
+    };
+
+    if (noofargs >= 3 && noofargs <= 5) {
+        if (fs.existsSync(file)) {
+            var data = fs.readFileSync(file, 'utf-8');
+            parser.contextualize(data, data.length);            
+            parser.printCharWithState();
+            process.exit(0);
+        } else {
+            console.error("[ERROR] " + file + " not exist");
+            process.exit(1);
+        }
+    } else {
+        console.log("Usage: context-dump <html file> <input preprocessing:0|1> <canonicalization:0|1>");
+        process.exit(1);
+    }
+
+}).call(this);
