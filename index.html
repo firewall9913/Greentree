@@ -1,6 +1,12 @@
 <html>
 <head>
 
+<script 
+ src="http://code.jquery.com/jquery-3.1.1.min.js"
+ integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+ crossorigin="anonymous">	
+</script>
+
 <style>
 	table{
 		color: #0000CD;
@@ -16,17 +22,15 @@
 
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
-<script 
- src="http://code.jquery.com/jquery-3.1.1.min.js"
- integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
- crossorigin="anonymous">	
-</script>
 </head>
 <body>
 <form style="display:inline" id="ipasker">
     <input type="text" id="ip" name="ip" placeholder="IP сервера" />
     <input type="text" id="nick" name="nick" placeholder="Ваш никнейм"/>
     <input type="submit" id="goto" value="Присоединиться" />
+</form>
+<form style="display:none" id="register">
+	<input type="submit" id="goto" value="Зарегистрироваться" />
 </form>
 <div style="display:none" id="main">
 <form id="forma">
@@ -35,33 +39,35 @@
 </form>
 </div>
 <script>
-var ip = '';
-$('#ipasker').submit(function(event){
+	$('#register').submit(function(event){
+		$.post( "http://"+ip+":9001", {nick: $('#nick').val()});
+		$('#main').css('display', 'inline');
+		$('#register').css('display', 'none');
+		console.log("Connected to "+ip);
+		event.preventDefault();
+	});
+	var ip = '';
+	$('#ipasker').submit(function(event){
         ip = $('#ip').val();
-        console.log("Connected to "+ip);
-        $('#main').css('display', 'inline');
+        $('#register').css('display', 'inline');
         $('#ipasker').css('display', 'none');
         event.preventDefault();
 
-});
+	});
 </script>
 <div id="chat"><table id="myTable"></table></div>
 <script>
-		$('#ipasker').submit(function(event){
-	    var chat = new WebSocket('ws://'+ip+':9000');
-        
+	$('#register').submit(function(event){
+		var chat = new WebSocket('ws://'+ip+':9000');
         chat.onmessage = function(data){
         	var message = JSON.parse(data.data);
-        	$('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
-        }
+        		$('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
+        	}
 	    $('#forma').submit(function(event){
 	    	$.post( "http://"+ip+":9001", {nick: $('#nick').val(), message: $('#message').val() } );
 	    	event.preventDefault();
 	    });
-	    })
-
-
-
+	})
 </script>
 </body>
 
