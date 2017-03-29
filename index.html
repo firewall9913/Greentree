@@ -29,42 +29,36 @@
     <input type="text" id="nick" name="nick" placeholder="Ваш никнейм"/>
     <input type="submit" id="goto" value="Присоединиться" />
 </form>
-<form style="display:none" id="register">
-	<input type="submit" id="goto" value="Зарегистрироваться" />
-</form>
 <div style="display:none" id="main">
 <form id="forma">
     <input type="text" id="message" name="message" placeholder="Ваше сообщение"/>
     <input type="submit" id="send"/>
 </form>
 </div>
-<script>
-	$('#register').submit(function(event){
-		$.post( "http://"+ip+":9001", {nick: $('#nick').val()});
-		$('#main').css('display', 'inline');
-		$('#register').css('display', 'none');
-		console.log("Connected to "+ip);
-		event.preventDefault();
-	});
-	var ip = '';
-	$('#ipasker').submit(function(event){
-        ip = $('#ip').val();
-        $('#register').css('display', 'inline');
-        $('#ipasker').css('display', 'none');
-        event.preventDefault();
 
-	});
-</script>
 <div id="chat"><table id="myTable"></table></div>
 <script>
-	$('#register').submit(function(event){
+	$('#ipasker').submit(function(event){
 		var chat = new WebSocket('ws://'+ip+':9000');
         chat.onmessage = function(data){
         	var message = JSON.parse(data.data);
+            if (message.type == 'handshake'){
+                window.key = message.key;
+                var ip = $('#ip').val();
+                $.post( "http://"+ip+":9001", {nick: $('#nick').val(), key:window.key}, function(){
+                    $('#main').css('display', 'inline');
+                    $('#ipasker').css('display', 'none');
+                    console.log("registered");  
+                });
+
+            } else {
         		$('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
-        	}
+            }
+        };
+
+
 	    $('#forma').submit(function(event){
-	    	$.post( "http://"+ip+":9001", {nick: $('#nick').val(), message: $('#message').val() } );
+	    	$.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
 	    	event.preventDefault();
 	    });
 	})

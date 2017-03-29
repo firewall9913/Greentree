@@ -3,8 +3,6 @@ var WebSocketServer = require('ws').Server,
     http = require('http'),
     qs = require('querystring');
     peers = [],
-    peersIP = [],
-    peersNick = [],
     nick = '',
 	index = 0;
 
@@ -27,21 +25,12 @@ server = http.createServer( function(req, res) {
 			if (post.message != undefined){
 				console.log(post);
 				if(post.message=='/stat'){
-            		post.nick = 'Websocket ';
-            		var stat = '';
-            		for (var i = 1; i < peers.length; i++){
-            			if (peers[i] != undefined) {
-            				var stat = stat+'Соединение '+i+' - '+peersIP[i]+' - '+peersNick[i]+';/n  '
-            			}
-            		}
-            		post.message = stat;
-					broadcast(post);
-					stat = 'Соединение ';
+      		showStat();
 				} else{
 					broadcast(post);
 				}
 			} else{
-                nick='';
+        nick='';
 				nicker(post);
 				console.log('Получен '+nick);
 			}
@@ -62,16 +51,15 @@ var closeConn = function (index) {
 }
 
 port = 9001;
-host = '192.168.1.12';
+host = 'localhost';
 server.listen(port, host);
 console.log('listening at http://' + host +':' + port);
 wss.on('connection', function(ws){
+  handshake(ws);
   index += 1;
   StrangeIp = ws._socket.remoteAddress;
   ip = StrangeIp.substr(7);
-  peers[index] = ws;
-  peersIP[index] = ip;
-  peersNick[index] = nick;
+  peers[index] = {ws:ws, ip:ip, nick:nick};
   console.log("новое соединение " + index);  
   ws.on('close', closeConn(index));
 });
@@ -83,4 +71,17 @@ function broadcast(data){
 
 	});
 }
- 
+
+var showStat = function(){
+  var post = {};
+  post.nick = 'Websocket';
+  var stat = '';
+  for (var i = 1; i < peers.length; i++){
+    if (peers[i] != undefined) {
+      var stat = stat+'Соединение '+i+' - '+peersIP[i]+' - '+peersNick[i]+';/n  '
+    }
+  }
+  post.message = stat;
+  broadcast(post);
+  stat = 'Соединение ';
+}
