@@ -28,30 +28,23 @@ server = http.createServer( function(req, res) {
       		showStat();
 				} else{
 					broadcast(post);
-				}
-			} else{
-        nick='';
-				nicker(post);
-				console.log('Получен '+nick);
 			}
-});
-		res.writeHead(200, {'Content-Type': 'text/html'});
+		  res.writeHead(200, {'Content-Type': 'text/html'});
 	    res.end('post received');
-	} else {res.end('post received');
-}
-});
+	   } else {res.end('post received')}
+    });
+  }
+})
 
 var closeConn = function (index) {
-    return function(){ 
-        console.log('соединение закрыто ' + index);
-        delete peers[index];
-        delete peersIP[index];
-        delete peersNick[index];
-    }
+  return function(){ 
+    console.log('соединение закрыто ' + index);
+    delete peers[index];
+  }
 }
 
 port = 9001;
-host = 'localhost';
+host = '192.168.1.12';
 server.listen(port, host);
 console.log('listening at http://' + host +':' + port);
 wss.on('connection', function(ws){
@@ -68,8 +61,7 @@ wss.on('connection', function(ws){
 function broadcast(data){
 	peers.forEach (function (ws){
 		ws.send (JSON.stringify (data));
-
-	});
+  });
 }
 
 var showStat = function(){
@@ -78,10 +70,28 @@ var showStat = function(){
   var stat = '';
   for (var i = 1; i < peers.length; i++){
     if (peers[i] != undefined) {
-      var stat = stat+'Соединение '+i+' - '+peersIP[i]+' - '+peersNick[i]+';/n  '
+      var stat = stat+'Соединение '+i+' - '+peers.ip[i]+' - '+peers.nick[i]+';/n  '
     }
   }
   post.message = stat;
   broadcast(post);
   stat = 'Соединение ';
+}
+
+function handshake(ws){
+  var Hash = crypto.createHash('sha1')
+  .update(dateNow())
+  .update(Math.random())
+  .digest('base64');
+  cache = {type:'handshake', key:Hash};
+  ws.send (JSON.strigify (cache));
+  var something = '';
+  req.on('data', function (data){
+      something += data;
+  });
+  req.on('end', function(){
+    var hand = qs.parse(something);
+    nicker(hand);
+    console.log('Зарегистрирован '+nick)
+  })
 }

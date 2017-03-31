@@ -45,7 +45,7 @@
             if (message.type == 'handshake'){
                 window.key = message.key;
                 var ip = $('#ip').val();
-                $.post( "http://"+ip+":9001", {nick: $('#nick').val(), key:window.key}, function(){
+                $.post( "http://"+ip+":9001", {nick: $('#nick').val(), key:window.key, type:'handshake'}, function(){
                     $('#main').css('display', 'inline');
                     $('#ipasker').css('display', 'none');
                     console.log("registered");  
