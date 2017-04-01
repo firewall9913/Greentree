@@ -4,16 +4,16 @@
 <script 
  src="http://code.jquery.com/jquery-3.1.1.min.js"
  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
- crossorigin="anonymous">	
+ crossorigin="anonymous">   
 </script>
 
 <style>
-	table{
-		color: #0000CD;
-		}
-	body{
-		background-image: url(https://wallpaperscraft.ru/image/oranzhevyy_fon_sploshnoy_krasochnyy_65839_2560x1600.jpg) !important;
-	}
+    table{
+        color: #0000CD;
+        }
+    body{
+        background-image: url(https://wallpaperscraft.ru/image/oranzhevyy_fon_sploshnoy_krasochnyy_65839_2560x1600.jpg) !important;
+    }
 </style>
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -38,13 +38,13 @@
 
 <div id="chat"><table id="myTable"></table></div>
 <script>
-	$('#ipasker').submit(function(event){
-		var chat = new WebSocket('ws://'+ip+':9000');
+    $('#ipasker').submit(function(event){
+        var ip = $('#ip').val();
+        var chat = new WebSocket('ws://'+ip+':9000');
         chat.onmessage = function(data){
-        	var message = JSON.parse(data.data);
+            var message = JSON.parse(data.data);
             if (message.type == 'handshake'){
                 window.key = message.key;
-                var ip = $('#ip').val();
                 $.post( "http://"+ip+":9001", {nick: $('#nick').val(), key:window.key, type:'handshake'}, function(){
                     $('#main').css('display', 'inline');
                     $('#ipasker').css('display', 'none');
@@ -52,18 +52,16 @@
                 });
 
             } else {
-        		$('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
+                $('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
             }
         };
 
 
-	    $('#forma').submit(function(event){
-	    	$.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
-	    	event.preventDefault();
-	    });
-	})
+        $('#forma').submit(function(event){
+            $.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
+            event.preventDefault();
+        });
+    })
 </script>
 </body>
 
-
-</html>

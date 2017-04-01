@@ -2,37 +2,42 @@ var WebSocketServer = require('ws').Server,
     wss = new WebSocketServer({port:9000}),
     http = require('http'),
     qs = require('querystring');
-    peers = [],
+    peers = {},
     nick = '',
-	index = 0;
+    crypto=require('crypto'),
+    index = 0;
 
 var nicker = function(post){
-	return function(){
-		nick += post.nick;
-		console.log('Получен '+nick);
-	}
+  return function(){
+    nick += post.nick;
+  }
 }
 
 server = http.createServer( function(req, res) {
-	console.log(req.method);
-	if (req.method =='POST') {
-		var body = '';
-		req.on('data', function (data){
-			body += data;
-		});
-		req.on('end', function(){
-			var post = qs.parse(body);
-			if (post.message != undefined){
-				console.log(post);
-				if(post.message=='/stat'){
-      		showStat();
-				} else{
-					broadcast(post);
-			}
-		  res.writeHead(200, {'Content-Type': 'text/html'});
-	    res.end('post received');
-	   } else {res.end('post received')}
+  console.log(req.method);
+  if (req.method =='POST') {
+    var body = '';
+    req.on('data', function (data){
+      body += data;
     });
+    req.on('end', function(){
+      var post = qs.parse(body);
+      if (post.type = 'handshake'){
+        nicker(post);
+        console.log('Зарегистрирован '+nick)
+      }
+      if (post.message != undefined){
+        console.log(post);
+        if(post.message=='/stat'){
+          showStat();
+        } else{
+          broadcast(post);
+        }
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.end('post received');
+      } 
+    });
+  } else {res.end('post received')
   }
 })
 
@@ -59,8 +64,8 @@ wss.on('connection', function(ws){
 
 
 function broadcast(data){
-	peers.forEach (function (ws){
-		ws.send (JSON.stringify (data));
+  peers.forEach (function (ws){
+    ws.send (JSON.stringify (data));
   });
 }
 
@@ -79,19 +84,13 @@ var showStat = function(){
 }
 
 function handshake(ws){
-  var Hash = crypto.createHash('sha1')
-  .update(dateNow())
-  .update(Math.random())
-  .digest('base64');
+  var time = ''+Date.now(),
+      number = ''+Math.random(),
+      Hash = crypto.createHash('sha1')
+                   .update(time)
+                   .update(number)
+                   .digest('base64');
   cache = {type:'handshake', key:Hash};
-  ws.send (JSON.strigify (cache));
+  ws.send (JSON.stringify (cache));
   var something = '';
-  req.on('data', function (data){
-      something += data;
-  });
-  req.on('end', function(){
-    var hand = qs.parse(something);
-    nicker(hand);
-    console.log('Зарегистрирован '+nick)
-  })
 }
