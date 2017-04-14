@@ -11,10 +11,11 @@ var nicker = function(post){
   return function(){
     nick += post.nick;
   }
-}
+};
 
 server = http.createServer( function(req, res) {
   console.log(req.method);
+  res.setHeader('Access-Control-Allow-Origin','*');
   if (req.method =='POST') {
     var body = '';
     req.on('data', function (data){
@@ -24,7 +25,8 @@ server = http.createServer( function(req, res) {
       var post = qs.parse(body);
       if (post.type = 'handshake'){
         nicker(post);
-        console.log('Зарегистрирован '+nick)
+        console.log('Зарегистрирован '+nick);
+        res.end('registration completed');
       }
       if (post.message != undefined){
         console.log(post);
@@ -39,14 +41,14 @@ server = http.createServer( function(req, res) {
     });
   } else {res.end('post received')
   }
-})
+});
 
 var closeConn = function (index) {
   return function(){ 
     console.log('соединение закрыто ' + index);
     delete peers[index];
   }
-}
+};
 
 port = 9001;
 host = '192.168.1.12';
@@ -64,9 +66,11 @@ wss.on('connection', function(ws){
 
 
 function broadcast(data){
-  peers.forEach (function (ws){
-    ws.send (JSON.stringify (data));
-  });
+  for (var i = 1; i < peers.length; i++) {
+    if (peers[i] != undefined) {
+      send(peers.ws[i])
+    }
+  };
 }
 
 var showStat = function(){
@@ -81,6 +85,10 @@ var showStat = function(){
   post.message = stat;
   broadcast(post);
   stat = 'Соединение ';
+};
+
+var send = function (ws){
+  ws.send (JSON.stringify (data));
 }
 
 function handshake(ws){

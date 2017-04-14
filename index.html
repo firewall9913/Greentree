@@ -59,8 +59,8 @@
 
         $('#forma').submit(function(event){
             $.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
-            event.preventDefault();
         });
+        event.preventDefault();
     })
 </script>
 </body>
