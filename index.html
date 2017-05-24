@@ -1,69 +1,96 @@
 <html>
 <head>
+    <meta charset="utf-8"/>
 
-<style>
-	table{
-		color: #0000CD;
-		}
-	body{
-		background-image: url(https://wallpaperscraft.ru/image/oranzhevyy_fon_sploshnoy_krasochnyy_65839_2560x1600.jpg) !important;
-	}
-</style>
+    <style>
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        table{
+            color: #0000CD;
+        }
 
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+        body{
+            background-image: url(https://wallpaperscraft.ru/image/oranzhevyy_fon_sploshnoy_krasochnyy_65839_2560x1600.jpg) !important;
+            color: #451ea2 !important;
+        }
 
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        #main{
+            position: fixed;
+            left: 89%;
+            bottom: 5px;
+        }
 
-<script 
- src="http://code.jquery.com/jquery-3.1.1.min.js"
- integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
- crossorigin="anonymous">	
-</script>
+        #Button{
+            position: absolute;
+            left: 162px;
+        }
+    </style>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <script
+            src="http://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous">
+    </script>
 </head>
-<body>
-<form style="display:inline" id="ipasker">
-    <input type="text" id="ip" name="ip" placeholder="IP сервера" />
-    <input type="text" id="nick" name="nick" placeholder="Ваш никнейм"/>
-    <input type="submit" id="goto" value="Присоединиться" />
-</form>
-<div style="display:none" id="main">
-<form id="forma">
-    <input type="text" id="message" name="message" placeholder="Ваше сообщение"/>
-    <input type="submit" id="send"/>
-</form>
-</div>
-<script>
-var ip = '';
-$('#ipasker').submit(function(event){
-        ip = $('#ip').val();
-        console.log("Connected to "+ip);
-        $('#main').css('display', 'inline');
-        $('#ipasker').css('display', 'none');
-        event.preventDefault();
 
-});
-</script>
+<body>
+
+<form style="display:inline" id="ipasker" class="form-horizontal">
+    <div class='form-group'>
+        <label class="control-label col-sm-1" for="inputdefault">IP:</label>
+        <div class="col-sm-3">
+            <input type="text" id="ip" class="form-control" placeholder="IP сервера" >
+        </div>
+    </div>
+
+    <div class='form-group'>
+        <label class="control-label col-sm-1" for="inputdefault">Nick:</label>
+        <div class="col-sm-3">
+            <input type="text" id="nick" class="form-control" placeholder="Ваш никнейм"/>
+        </div>
+    </div>
+    <button id="Button" type="submit" class="btn btn-default">Присоединиться</button>
+</form>
+
+<div style="display:none" id="main">
+    <form id="forma">
+        <label for="inputdefault">Сообщение</label>
+        <input type="text" id="message" class="form-control" placeholder="Ваше сообщение"/>
+        <button id="Send" type="submit" class="btn btn-default btn-sm">Отправить</button>
+    </form>
+</div>
 <div id="chat"><table id="myTable"></table></div>
 <script>
-		$('#ipasker').submit(function(event){
-	    var chat = new WebSocket('ws://'+ip+':9000');
-        
+    $('#ipasker').submit(function(event){
+        var ip = $('#ip').val();
+        var chat = new WebSocket('ws://'+ip+':9000');
         chat.onmessage = function(data){
-        	var message = JSON.parse(data.data);
-        	$('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
-        }
-	    $('#forma').submit(function(event){
-	    	$.post( "http://"+ip+":9001", {nick: $('#nick').val(), message: $('#message').val() } );
-	    	event.preventDefault();
-	    });
-	    })
+            var message = JSON.parse(data.data);
+            if (message.type == 'handshake'){
+                window.key = message.key;
+                $.post( "http://"+ip+":9001", {nick: $('#nick').val(), key:window.key, type:'handshake'}, function(){
+                    $('#main').css('display', 'inline');
+                    $('#ipasker').css('display', 'none');
+                    console.log("registered");  
+                });
+
+            } else {
+                $('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
+            }
+        };
 
 
-
+        $('#forma').submit(function(event){
+            $.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
+            event.preventDefault();
+        });
+        event.preventDefault();
+    })
 </script>
 </body>
 
-
-</html>
