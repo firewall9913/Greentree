@@ -1,12 +1,14 @@
+
 var WebSocketServer = require('ws').Server,
     wss = new WebSocketServer({port:9000}),
     http = require('http'),
     qs = require('querystring');
-    peers = {},
-    nick = '',
+    peers = {};
     crypto=require('crypto'),
     Database='',
+	syncedUsers = {};
     things ={},
+	aBit = 100,
     k=0,
     i=0,
     index = 0;
@@ -14,22 +16,40 @@ var WebSocketServer = require('ws').Server,
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
 var ObjectId = require('mongodb').ObjectID;
-var url0 = 'mongodb://FreeBadMan:1241@192.168.219.128/test';
+var url0 = 'mongodb://freebadman:1813@ds135394.mlab.com:35394/yellowbeedb';
 
 MongoClient.connect(url0, function(err, db) {
 	Database = db;
+    sync(Database);
 	var nicker = function(post){
 	    //post.nick, post.hash
 	 console.log(post.nick, post.key);
 	  for (var i in peers) {
 	      if(peers[i].key === post.key){
-	          console.log(true);
+	      	console.log(true);
 	        peers[i].nick = post.nick;
-	        console.log(peers[i].nick)
-	        insertUser(Database, peers[i].key, peers[i].nick);
+	        insertUser(Database, peers[i].key, post.nick);
 	      }
 	  }
 	};
+
+
+	function sync (db){
+        db.collection('users').find().toArray(function(err,things){
+            for(i in things){
+            	console.log( things[i].nick + " Никнейм из базы");
+                syncedUsers[i] = {"hash" : things[i].hash, "nick" : things[i].nick};
+            }
+        });
+	}
+
+    function findNickByHashInSyncedUsers(hash) {
+        for (var i in syncedUsers) {
+            if(syncedUsers[i].hash === hash){
+                return syncedUsers[i].nick;
+            }
+        }
+    }
 
 	function findNickByHash(hash) {
 	    for (var i in peers) {
@@ -37,20 +57,18 @@ MongoClient.connect(url0, function(err, db) {
 	        return peers[i].nick;
 	      }
 	  }
-	};
+	}
 
-	function findNickByHashFromTheDatabase(hash) {
-		db.collection('users').find({hash:hash}).toArray(function(err,results){
-				for(i in results){
-					console.log(results[i]);
-					var nickname=results[i].nick;
-					return(nickname);
-				};
-			});
-	};
+	function findAndSend(hash, msg, ws) {
+		var nick = findNickByHashInSyncedUsers(hash);
+		var forSend={message:msg, nick:nick};
+		ws.send(JSON.stringify(forSend));
+	}
 
 
 	var insertUser = function(db, hash, nick){
+        syncedUsers.push = ({hash: hash, nick:nick});
+        console.log (syncedUsers);
 		db.collection('users').insertOne( {
 			"nick":nick,
 			"hash":hash
@@ -65,21 +83,20 @@ MongoClient.connect(url0, function(err, db) {
 	         "hash" : hash,
 	         "msg" :  msg,
 	         "time" : TimeFromChrist,
-	         "ip" : ipForSend 
+	         "ip" : ipForSend
 	    }, function(err, result) {
 	    	assert.equal(err, null);
 	    	console.log("Inserted a message into the Database.");
 	  	});
 	};
 
-   
-	var SendXLastDocuments = function(db, X, ws){
-			db.collection('data').find().limit(X).toArray(function(err,things){
+
+	var SendLastDocumentsV2 = function(db, ws){
+			db.collection('data').find().sort({time : 1}).toArray(function(err,things){
 				for(i in things){
-					var nickname = findNickByHashFromTheDatabase(things[i].hash);
-					var forSend={message:things[i].msg, nick:nickname};
-					ws.send(JSON.stringify(forSend));
-				};
+					findAndSend(things[i].hash, things[i].msg, ws);
+					console.log(i);
+				}
 			});
 	};
 
@@ -98,7 +115,7 @@ MongoClient.connect(url0, function(err, db) {
 	        switch(post.type){
 	            case 'handshake':
 	                nicker(post);
-	                console.log('Зарегистрирован '+nick+Date.now());
+	                console.log('Зарегистрирован '+post.nick);
 	                res.end('registration completed');
 	                break;
 	                
@@ -141,7 +158,7 @@ MongoClient.connect(url0, function(err, db) {
 	  ip = StrangeIp.substr(7);
 	  peers[index] = {ws:ws, ip:ip, key:key};
 	  console.log("новое соединение " + index + Date.now());
-	  SendXLastDocuments (Database, 100, ws);
+	  SendLastDocumentsV2 (Database, ws);
 	  ws.on('close', closeConn(index));
 	});
 
@@ -149,10 +166,10 @@ MongoClient.connect(url0, function(err, db) {
 	function broadcast(data){
 	  for (var i in peers) {  
 	    if (peers[i] != undefined) {
-	      send(peers[i].ws, data)
+	      send(peers[i].ws, data);
+	      insertDocument(Database, peers[i].key, data.message, peers[i].ip, ''+Date.now() );
 	    }
-	  };
-	  insertDocument(Database, peers[i].key, data.message, peers[i].ip, ''+Date.now() );
+	  }
 	}
 
 	var showStat = function(){
