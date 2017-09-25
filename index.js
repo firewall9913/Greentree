@@ -67,7 +67,7 @@ MongoClient.connect(url0, function(err, db) {
 
 
 	var insertUser = function(db, hash, nick){
-        syncedUsers.push = ({hash: hash, nick:nick});
+        syncedUsers[Date.now()]= {hash: hash, nick:nick};
         console.log (syncedUsers);
 		db.collection('users').insertOne( {
 			"nick":nick,
