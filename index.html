@@ -3,25 +3,25 @@
     <meta charset="utf-8"/>
 
     <style>
-
         table{
             color: #0000CD;
         }
-
         body{
             background-image: url(https://wallpaperscraft.ru/image/oranzhevyy_fon_sploshnoy_krasochnyy_65839_2560x1600.jpg) !important;
             color: #451ea2 !important;
         }
-
         #main{
             position: fixed;
             left: 89%;
             bottom: 5px;
         }
-
         #Button{
             position: absolute;
             left: 162px;
+        }
+        #scroll{
+            height:100px;
+            overflow: scroll;
         }
     </style>
 
@@ -70,6 +70,7 @@
         var ip = $('#ip').val();
         var chat = new WebSocket('ws://'+ip+':9000');
         chat.onmessage = function(data){
+            $('html, body').scrollTop(document.body.scrollHeight+200);
             var message = JSON.parse(data.data);
             if (message.type == 'handshake'){
                 window.key = message.key;
@@ -78,14 +79,13 @@
                     $('#ipasker').css('display', 'none');
                     console.log("registered");  
                 });
-
             } else {
                 $('#myTable').append('<tr><h5><td>'+message.nick+':</td></h5><h5><td>'+message.message+'</td></h5></tr>');
+                $('html, body').scrollTop(document.body.scrollHeight+200);
             }
         };
-
-
         $('#forma').submit(function(event){
+            $('html, body').scrollTop(document.body.scrollHeight+200);
             $.post( "http://"+ip+":9001", {key: window.key, message: $('#message').val() } );
             event.preventDefault();
         });
@@ -93,4 +93,3 @@
     })
 </script>
 </body>
-
